@@ -1,7 +1,7 @@
 def list_courses(courses):
     for course in courses:
         print(
-            f"ID: {course.course.id},"
+            f"ID: {course.course_id}, "
             f"Name: {course.name}"
         )
 
@@ -12,6 +12,54 @@ def list_students(students):
             f"Name: {student.name},"
             f"DoB: {student.dob}"
         )
+
+
+def get_class_information(
+    class_name,
+    number_of_students,
+    number_of_courses
+):
+    return "\n".join((
+        "CLASS INFORMATION",
+        "",
+        f"Class: {class_name}",
+        f"Number of students: {number_of_students}",
+        f"Number of courses: {number_of_courses}"
+    ))
+
+
+def get_course_list(courses):
+    lines = ["COURSE LIST", ""]
+    for course in courses:
+        lines.append(
+            f"ID: {course.course_id} | Name: {course.name}"
+        )
+    return "\n".join(lines)
+
+
+def get_student_list(students):
+    lines = ["STUDENT LIST", ""]
+    for student in students:
+        lines.append(
+            f"ID: {student.student_id} | "
+            f"Name: {student.name} | DoB: {student.dob}"
+        )
+    return "\n".join(lines)
+
+
+def get_all_marks(students, courses, marks):
+    lines = ["ALL STUDENT MARKS", ""]
+    for course in courses:
+        lines.append(f"{course.course_id} - {course.name}")
+        course_marks = marks.get(course.course_id, {})
+        for student in students:
+            mark = course_marks.get(student.student_id)
+            if mark is not None:
+                lines.append(
+                    f"  {student.student_id} {student.name}: {mark:.1f}"
+                )
+        lines.append("")
+    return "\n".join(lines)
 
 #decor
 import curses

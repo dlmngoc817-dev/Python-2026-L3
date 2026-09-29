@@ -5,12 +5,11 @@ number_of_students = 5
 students = [
     Student("S01", "Nguyen Minh Anh", "15/03/2008"),
     Student("S02", "Tran Hoang Nam", "21/07/2008"),
-    Student("S02", "Tran Hoang Nam", "21/07/2008"),
     Student("S03", "Le Thu Ha", "09/11/2008"),
     Student("S04", "Pham Gia Bao", "27/01/2008"),
     Student("S05", "Do Ngoc Linh", "04/06/2008")
 ]
-number_of_course = 5
+number_of_courses = 5
 
 courses = [
     Course("C01", "Mathematics"),
