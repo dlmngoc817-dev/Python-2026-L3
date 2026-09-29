@@ -1,108 +1,150 @@
-import math
-import numpy as np
 import curses
+import io
+from contextlib import redirect_stdout
 
 
-# Ask for the class name and the number of students.
+# =========================================
+# PREDEFINED DATA
+# =========================================
+
+class_name = "12E4"
+
+number_of_students = 5
+
+students = [
+    {
+        "id": "S01",
+        "name": "Nguyen Minh Anh",
+        "dob": "15/03/2008"
+    },
+    {
+        "id": "S02",
+        "name": "Tran Hoang Nam",
+        "dob": "21/07/2008"
+    },
+    {
+        "id": "S03",
+        "name": "Le Thu Ha",
+        "dob": "09/11/2008"
+    },
+    {
+        "id": "S04",
+        "name": "Pham Gia Bao",
+        "dob": "27/01/2008"
+    },
+    {
+        "id": "S05",
+        "name": "Do Ngoc Linh",
+        "dob": "04/06/2008"
+    }
+]
+
+number_of_courses = 5
+
+courses = [
+    {
+        "id": "C01",
+        "name": "Mathematics"
+    },
+    {
+        "id": "C02",
+        "name": "English"
+    },
+    {
+        "id": "C03",
+        "name": "Physics"
+    },
+    {
+        "id": "C04",
+        "name": "Chemistry"
+    },
+    {
+        "id": "C05",
+        "name": "Computer Science"
+    }
+]
+
+marks = {
+    "C01": {
+        "S01": 8.5,
+        "S02": 7.8,
+        "S03": 9.2,
+        "S04": 6.9,
+        "S05": 8.1
+    },
+
+    "C02": {
+        "S01": 9.0,
+        "S02": 8.2,
+        "S03": 8.8,
+        "S04": 7.4,
+        "S05": 9.1
+    },
+
+    "C03": {
+        "S01": 7.8,
+        "S02": 8.7,
+        "S03": 9.1,
+        "S04": 7.2,
+        "S05": 8.9
+    },
+
+    "C04": {
+        "S01": 8.5,
+        "S02": 7.6,
+        "S03": 8.4,
+        "S04": 6.9,
+        "S05": 9.3
+    },
+
+    "C05": {
+        "S01": 9.3,
+        "S02": 8.8,
+        "S03": 9.6,
+        "S04": 7.7,
+        "S05": 8.5
+    }
+}
+
+
+# =========================================
+# INPUT FUNCTIONS
+# =========================================
+
 def input_number_of_students():
-    class_name = input("Input class name: ")
-    number_of_students = int(input("Input number of students: "))
-
-    return class_name, number_of_students
+    return number_of_students
 
 
-# Collect information about every student.
-def input_students_information(number_of_students):
-    students = []
-
-    for i in range(number_of_students):
-        print(f"\nStudent {i + 1}:")
-        student_id = input("Input student ID: ")
-        name = input("Input student name: ")
-        dob = input("Input date of birth: ")
-
-        student = {
-            "id": student_id,
-            "name": name,
-            "dob": dob
-        }
-
-        students.append(student)
-
+def input_students_information():
     return students
 
 
-# Ask how many courses the class has.
 def input_number_of_courses():
-    number_of_courses = int(input("Input number of courses: "))
     return number_of_courses
 
 
-# Collect the ID, name and credits of every course.
-def input_courses(number_of_courses):
-    courses = []
-
-    for i in range(number_of_courses):
-        print(f"\nCourse {i + 1}:")
-        course_id = input("Input course ID: ")
-        course_name = input("Input course name: ")
-        credits = float(input("Input number of credits: "))
-
-        course = {
-            "id": course_id,
-            "name": course_name,
-            "credits": credits
-        }
-
-        courses.append(course)
-
+def input_courses():
     return courses
 
 
-# Round a mark DOWN to 1 decimal place.
-def round_down(mark):
-    return math.floor(mark * 10) / 10
-
-
-# Select a course and enter marks for all students.
-def input_marks(students, courses, marks):
-    course_id = input("Input course ID to enter marks: ")
-
-    for course in courses:
-        if course["id"] == course_id:
-
-            if course_id not in marks:
-                marks[course_id] = {}
-
-            for student in students:
-                mark = float(
-                    input(f"Input mark for {student['name']}: ")
-                )
-
-                # Round DOWN to one decimal place.
-                mark = round_down(mark)
-
-                marks[course_id][student["id"]] = mark
-
-            return marks
-
-    print("Course not found.")
+def input_marks():
     return marks
 
 
-# Print the ID, name and credits of every course.
+# =========================================
+# LISTING FUNCTIONS
+# =========================================
+
 def list_courses(courses):
     print("\nCOURSE LIST")
 
     for course in courses:
         print(
             f"ID: {course['id']}, "
-            f"Name: {course['name']}, "
-            f"Credits: {course['credits']}"
+            f"Name: {course['name']}"
         )
 
 
-# Print the information of every student.
 def list_students(students):
     print("\nSTUDENT LIST")
 
@@ -114,116 +156,118 @@ def list_students(students):
         )
 
 
-# Show marks for a selected course.
-def show_marks(students, courses, marks):
-    course_id = input("Input course ID to show marks: ")
+def show_marks(students, courses, marks, course_id):
 
     for course in courses:
-        if course["id"] == course_id:
-            print(f"\nMarks for {course['name']}:")
 
-            if course_id not in marks:
-                print("No marks have been entered for this course.")
-                return
+        if course["id"] == course_id:
+
+            print(
+                f"\nMarks for {course['name']}:"
+            )
 
             for student in students:
+
                 student_id = student["id"]
 
-                if student_id in marks[course_id]:
-                    mark = marks[course_id][student_id]
-                    print(f"{student['name']} ({student_id}): {mark}")
+                mark = marks[course_id][student_id]
+
+                print(
+                    f"{student['name']} "
+                    f"({student_id}): {mark}"
+                )
 
             return
 
     print("Course not found.")
 
 
-# Calculate weighted GPA for one student.
-def calculate_gpa(student_id, courses, marks):
-    student_marks = []
-    student_credits = []
+# =========================================
+# GET PRINT OUTPUT
+# =========================================
 
-    for course in courses:
-        course_id = course["id"]
+def get_course_list():
+    output = io.StringIO()
 
-        if (
-            course_id in marks
-            and student_id in marks[course_id]
-        ):
-            student_marks.append(marks[course_id][student_id])
-            student_credits.append(course["credits"])
+    with redirect_stdout(output):
+        list_courses(courses)
 
-    # Convert Python lists to NumPy arrays.
-    mark_array = np.array(student_marks, dtype=float)
-    credit_array = np.array(student_credits, dtype=float)
-
-    if len(mark_array) == 0:
-        return None
-
-    # Weighted GPA:
-    # sum(mark * credit) / sum(credit)
-    gpa = np.sum(mark_array * credit_array) / np.sum(credit_array)
-
-    return gpa
+    return output.getvalue()
 
 
-# Show the GPA of one selected student.
-def show_student_gpa(students, courses, marks):
-    student_id = input("Input student ID: ")
+def get_student_list():
+    output = io.StringIO()
 
-    for student in students:
-        if student["id"] == student_id:
+    with redirect_stdout(output):
+        list_students(students)
 
-            gpa = calculate_gpa(student_id, courses, marks)
-
-            if gpa is None:
-                print("No marks available for this student.")
-            else:
-                print(
-                    f"{student['name']} ({student_id}) "
-                    f"GPA: {gpa:.2f}"
-                )
-
-            return
-
-    print("Student not found.")
+    return output.getvalue()
 
 
-# Sort all students by GPA descending.
-def sort_students_by_gpa(students, courses, marks):
-    student_gpas = []
+def get_all_marks():
+    output = io.StringIO()
 
-    for student in students:
-        gpa = calculate_gpa(student["id"], courses, marks)
+    with redirect_stdout(output):
 
-        if gpa is None:
-            gpa = 0
-
-        student_gpas.append(
-            {
-                "id": student["id"],
-                "name": student["name"],
-                "gpa": gpa
-            }
+        show_marks(
+            students,
+            courses,
+            marks,
+            "C01"
         )
 
-    student_gpas.sort(
-        key=lambda student: student["gpa"],
-        reverse=True
+        show_marks(
+            students,
+            courses,
+            marks,
+            "C02"
+        )
+
+        show_marks(
+            students,
+            courses,
+            marks,
+            "C03"
+        )
+
+        show_marks(
+            students,
+            courses,
+            marks,
+            "C04"
+        )
+
+        show_marks(
+            students,
+            courses,
+            marks,
+            "C05"
+        )
+
+    return output.getvalue()
+
+
+def get_class_information():
+
+    return (
+        f"CLASS: {class_name}\n\n"
+        f"Number of students: "
+        f"{input_number_of_students()}\n"
+        f"Number of courses: "
+        f"{input_number_of_courses()}"
     )
 
-    print("\nSTUDENTS SORTED BY GPA")
 
-    for student in student_gpas:
-        print(
-            f"ID: {student['id']}, "
-            f"Name: {student['name']}, "
-            f"GPA: {student['gpa']:.2f}"
-        )
+# =========================================
+# CURSES DECORATION
+# =========================================
 
+def curses_menu(
+    stdscr,
+    class_name,
+    page_text=None
+):
 
-# Curses decorated menu.
-def curses_menu(stdscr, class_name):
     curses.curs_set(0)
 
     curses.start_color()
@@ -240,105 +284,360 @@ def curses_menu(stdscr, class_name):
         curses.COLOR_BLACK
     )
 
-    stdscr.clear()
+    height = 20
+    width = 60
 
-    stdscr.attron(curses.color_pair(1))
-    stdscr.addstr(1, 5, "==============================")
-    stdscr.addstr(2, 5, "   STUDENT MANAGEMENT SYSTEM")
-    stdscr.addstr(3, 5, "==============================")
-    stdscr.attroff(curses.color_pair(1))
-
-    stdscr.attron(curses.color_pair(2))
-    stdscr.addstr(5, 5, f"CLASS: {class_name}")
-    stdscr.attroff(curses.color_pair(2))
-
-    stdscr.addstr(7, 5, "1. Input marks for a course")
-    stdscr.addstr(8, 5, "2. List courses")
-    stdscr.addstr(9, 5, "3. List students")
-    stdscr.addstr(10, 5, "4. Show marks for a course")
-    stdscr.addstr(11, 5, "5. Show student GPA")
-    stdscr.addstr(12, 5, "6. Sort students by GPA")
-    stdscr.addstr(13, 5, "0. Exit")
-
-    stdscr.addstr(15, 5, "Press any key to continue...")
-
-    stdscr.refresh()
-    stdscr.getch()
+    screen_height, screen_width = (
+        stdscr.getmaxyx()
+    )
 
 
-# ----- Main program -----
+    if (
+        screen_height < height
+        or screen_width < width
+    ):
 
-class_name, number_of_students = input_number_of_students()
+        stdscr.clear()
 
-students = input_students_information(
-    number_of_students
-)
+        message = (
+            "Resize terminal to at least "
+            "60 columns x 20 rows."
+        )
 
-number_of_courses = input_number_of_courses()
+        stdscr.addnstr(
+            0,
+            0,
+            message,
+            screen_width - 1
+        )
 
-courses = input_courses(
-    number_of_courses
-)
+        stdscr.refresh()
+        stdscr.getch()
 
-marks = {}
+        return None
+
+
+    top = max(
+        0,
+        (screen_height - height) // 2
+    )
+
+    left = max(
+        0,
+        (screen_width - width) // 2
+    )
+
+
+    window = curses.newwin(
+        height,
+        width,
+        top,
+        left
+    )
+
+
+    # =====================================
+    # RESULT PAGE
+    # =====================================
+
+    if page_text is not None:
+
+        page_lines = (
+            page_text.splitlines()
+            or [""]
+        )
+
+        content_height = height - 10
+
+        first_line = 0
+
+
+        while True:
+
+            window.clear()
+
+            window.attron(
+                curses.color_pair(1)
+            )
+
+            window.box()
+
+            window.addstr(
+                2,
+                14,
+                "STUDENT MANAGEMENT SYSTEM"
+            )
+
+            window.hline(
+                4,
+                2,
+                curses.ACS_HLINE,
+                width - 4
+            )
+
+            window.attroff(
+                curses.color_pair(1)
+            )
+
+
+            window.attron(
+                curses.color_pair(2)
+            )
+
+            window.addstr(
+                6,
+                4,
+                "RESULT"
+            )
+
+            window.attroff(
+                curses.color_pair(2)
+            )
+
+
+            row = 8
+
+            for line in page_lines[
+                first_line:
+                first_line + content_height
+            ]:
+
+                if row < height - 2:
+
+                    window.addnstr(
+                        row,
+                        4,
+                        line,
+                        width - 8
+                    )
+
+                    row += 1
+
+
+            if (
+                len(page_lines)
+                > content_height
+            ):
+
+                prompt = (
+                    "UP/DOWN: Scroll | "
+                    "Other key: Menu"
+                )
+
+            else:
+
+                prompt = (
+                    "Press any key to return."
+                )
+
+
+            window.addnstr(
+                height - 2,
+                4,
+                prompt,
+                width - 8
+            )
+
+            window.refresh()
+
+            key = window.getch()
+
+
+            if (
+                key == curses.KEY_UP
+                and first_line > 0
+            ):
+
+                first_line -= 1
+
+
+            elif (
+                key == curses.KEY_DOWN
+                and first_line
+                + content_height
+                < len(page_lines)
+            ):
+
+                first_line += 1
+
+
+            else:
+
+                return -1
+
+
+    # =====================================
+    # MAIN MENU
+    # =====================================
+
+    window.clear()
+
+    window.attron(
+        curses.color_pair(1)
+    )
+
+    window.box()
+
+    window.addstr(
+        2,
+        14,
+        "STUDENT MANAGEMENT SYSTEM"
+    )
+
+    window.hline(
+        4,
+        2,
+        curses.ACS_HLINE,
+        width - 4
+    )
+
+    window.attroff(
+        curses.color_pair(1)
+    )
+
+
+    window.attron(
+        curses.color_pair(2)
+    )
+
+    window.addstr(
+        6,
+        4,
+        f"CLASS: {class_name}"
+    )
+
+    window.attroff(
+        curses.color_pair(2)
+    )
+
+
+    window.addstr(
+        8,
+        4,
+        "1. Class information"
+    )
+
+    window.addstr(
+        9,
+        4,
+        "2. List courses"
+    )
+
+    window.addstr(
+        10,
+        4,
+        "3. List students"
+    )
+
+    window.addstr(
+        11,
+        4,
+        "4. Show marks"
+    )
+
+    window.addstr(
+        12,
+        4,
+        "0. Exit"
+    )
+
+
+    window.attron(
+        curses.color_pair(2)
+    )
+
+    window.addstr(
+        15,
+        4,
+        "Choose an option (0-4):"
+    )
+
+    window.attroff(
+        curses.color_pair(2)
+    )
+
+
+    window.refresh()
+
+    return window.getch()
+
+
+# =========================================
+# MAIN PROGRAM
+# =========================================
+
+page_text = None
 
 
 while True:
 
-    # Display decorated UI using curses.
-    curses.wrapper(
+    selection = curses.wrapper(
         curses_menu,
-        class_name
+        class_name,
+        page_text
     )
 
-    print(f"\nCLASS: {class_name}")
-    print("1. Input marks for a course")
-    print("2. List courses")
-    print("3. List students")
-    print("4. Show marks for a course")
-    print("5. Show student GPA")
-    print("6. Sort students by GPA")
-    print("0. Exit")
 
-    choice = input("Choose an option: ")
+    if page_text is not None:
 
-    if choice == "1":
-        marks = input_marks(
-            students,
-            courses,
-            marks
-        )
+        page_text = None
 
-    elif choice == "2":
-        list_courses(courses)
+        continue
 
-    elif choice == "3":
-        list_students(students)
 
-    elif choice == "4":
-        show_marks(
-            students,
-            courses,
-            marks
-        )
+    if selection is None:
+        continue
 
-    elif choice == "5":
-        show_student_gpa(
-            students,
-            courses,
-            marks
-        )
 
-    elif choice == "6":
-        sort_students_by_gpa(
-            students,
-            courses,
-            marks
-        )
+    if (
+        ord("0")
+        <= selection
+        <= ord("4")
+    ):
 
-    elif choice == "0":
-        print("Goodbye!")
-        break
+        choice = chr(selection)
 
     else:
-        print("Invalid option.")
+
+        choice = ""
+
+
+    if choice == "1":
+
+        page_text = (
+            get_class_information()
+        )
+
+
+    elif choice == "2":
+
+        page_text = (
+            get_course_list()
+        )
+
+
+    elif choice == "3":
+
+        page_text = (
+            get_student_list()
+        )
+
+
+    elif choice == "4":
+
+        page_text = (
+            get_all_marks()
+        )
+
+
+    elif choice == "0":
+
+        break
+
+
+    else:
+
+        page_text = (
+            "Invalid option.\n"
+            "Please choose from 0 to 4."
+        )
